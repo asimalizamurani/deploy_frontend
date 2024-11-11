@@ -1,4 +1,5 @@
 import { Coupon } from "../models/coupon.model.js";
+import { Order } from "../models/order.model.js";
 import {stripe} from "../lib/stripe.js";
 
 const createCheckoutSession = async (req, res) => {
@@ -53,7 +54,14 @@ const createCheckoutSession = async (req, res) => {
         : [],
         metadata: {
           userId: req.user._id.toString(),
-          couponCode: couponCode || ""
+          couponCode: couponCode || "",
+          products: JSON.stringify(
+            products.map((p) => ({
+              id: p._id,
+              quantity: p.quantity,
+              price: p.price,
+            }))
+          ),
         }
   
       });
@@ -63,8 +71,51 @@ const createCheckoutSession = async (req, res) => {
       }
       res.status(200).json({ id: session.id, totalAmount: totalAmount / 100 });
     } catch (error) {
-      
+      console.log("Error processing successful checkout", error);
+    res.status(500).json({ message: "Error processing successful checkout", error: error.message });
     }
+  }
+}
+
+const checkoutSuccess = async (req, res) => {
+  try {
+    const {sessionId} = req.body;
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if(session.payment_status === "paid") {
+      
+      if(session.metadata.couponCode) {
+        await Coupon.findOneAndUpdate({
+          code: session.metadata.couponCode, userId:session.metadata.userId
+        }, {
+          isActive: false
+        })
+      }
+
+      // create a new order
+      const products = JSON.parse(session.metadata.products);
+      const newOrder = new Order({
+        user:session.metadata.userId,
+        products: products.map(product => ({
+          product: product.id,
+          quantity: product.quantity,
+          price: product.price
+        })),
+        totalAmount: session.amount_total / 100, // convert from cents to dollars
+        // paymentIntent:session.payment_intent,
+        stripeSessionId: sessionId
+      })
+      await newOrder.save();
+      
+      res.status(200).json({
+        success: true,
+        message: "Payment successfull, Order created successfully, Coupon deactivated if used",
+        orderId: newOrder._id,
+      });
+    }
+  } catch (error) {
+    console.log("Error processing successful checkout", error);
+    res.status(500).json({ message: "Error processing successful checkout", error: error.message });
   }
 }
 
@@ -89,4 +140,9 @@ async function createNewCoupon(userId) {
   return newCoupon;
 }
 
-export { createCheckoutSession}
+
+
+export { 
+  createCheckoutSession,
+  checkoutSuccess,
+}
