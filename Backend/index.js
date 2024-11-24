@@ -11,6 +11,8 @@ import couponsRoutes from "./routes/coupon.route.js"
 import paymentRoutes from "./routes/payment.route.js"
 import analyticsRoutes from "./routes/analytics.route.js"
 
+import cors from "cors"
+
 dotenv.config({
   path: "./.env"
 })
@@ -21,6 +23,12 @@ const PORT = process.env.PORT || 4000;
 
 app.use(express.json()) // allows us to parse JSON request bodies
 app.use(cookieParser())
+// Use CORS middleware
+app.use(cors({
+  origin: process.env.CORS_ORIGIN, // Allow requests from this origin
+  // methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
+  credentials: true // Allow credentials (cookies, authorization headers, etc.)
+}));
 
 app.use("/api/auth", authRoutes)
 app.use("/api/products", productRoutes)
