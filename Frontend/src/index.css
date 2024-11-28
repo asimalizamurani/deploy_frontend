@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.create-product {
+            
+            /* Hide scrollbar for Firefox */
+            
+              scrollbar-width: none; /* For Firefox */
+            
+}
+
+.create-product::-webkit_scrollbar {
+  /* Hide scrollbar for Webkit browsers (Chrome, Safari, Edge) */
+    display: none;
+}

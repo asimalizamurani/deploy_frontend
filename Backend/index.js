@@ -21,7 +21,7 @@ const app = express();
 
 const PORT = process.env.PORT || 4000;
 
-app.use(express.json()) // allows us to parse JSON request bodies
+app.use(express.json({limit: "10mb"})) // allows us to parse JSON request bodies
 app.use(cookieParser())
 // Use CORS middleware
 app.use(cors({
