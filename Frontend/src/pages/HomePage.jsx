@@ -8,13 +8,13 @@ const categories = [
   { href: "/shoes", name: "Shoes", imageUrl: "/shoes.jpg" },
   { href: "/suits", name: "Suits", imageUrl: "/suits.jpg" },
   { href: "/glasses", name: "Glasses", imageUrl: "/sunglasses.jpg" },
-  { href: "/tshirts", name: "T-shirts", imageUrl: "/tshirt.jpg" },
+  { href: "/t-shirts", name: "T-shirts", imageUrl: "/tshirt.jpg" },
 ];
 
-const HomePage = () => {
+ const HomePage = () => {
   return (
     <div className="relative h-screen text-white overflow-y-auto overflow-x-hidden
-    mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    mx-auto px-4 sm:px-6 lg:px-8 py-16 scrollbar-hide">
       <div className="relative z-10 max-w-7xl">
         <h1 className="text-center text-5xl sm:text-6xl font-bold text-emerald-400 mb-4">
           Explore Our Categories          

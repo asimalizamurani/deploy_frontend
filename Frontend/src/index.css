@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+::selection {
+  background-color: rgb(2, 167, 255);
+  color: #ebe3e3;
+}
+
 .create-product {
             
             /* Hide scrollbar for Firefox */
@@ -13,4 +18,14 @@
 .create-product::-webkit_scrollbar {
   /* Hide scrollbar for Webkit browsers (Chrome, Safari, Edge) */
     display: none;
+}
+
+/* Add this to your global CSS file */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }

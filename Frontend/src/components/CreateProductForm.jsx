@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Loader, PlusCircle, Upload } from 'lucide-react';
 import { useProductStore } from '../stores/useProductStore';
 
-const categories = ['jeans', 't-shirt', 'shoe', 'glasses', 'jacket', 'suit', 'bag'];
+const categories = ['jeans', 't-shirts', 'shoes', 'glasses', 'jackets', 'suits', 'bags'];
 const CreateProductForm = () => {
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -40,11 +40,11 @@ const CreateProductForm = () => {
 
   return (
     <motion.div
-      className="create-product bg-gray-800 shadow-lg rounded-lg p-8 mb-8 pb-52 max-w-xl mx-auto"
+      className="create-product bg-gray-800 shadow-lg rounded-lg p-8 mb-2 pb-52 max-w-xl mx-auto"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
-      style={{ maxHeight: '80vh', overflowY: 'scroll' }} // Enable scrolling within a limited height
+      // style={{ maxHeight: '80vh', overflowY: 'scroll' }} // Enable scrolling within a limited height
     >
 
 
@@ -61,7 +61,9 @@ const CreateProductForm = () => {
             name="name"
             value={newProduct.name}
             onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-            className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="mt-1 block w-full bg-gray-700 border border-gray-600 
+            rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2
+             focus:ring-emerald-500"
             required
           />
         </div>
@@ -106,7 +108,9 @@ const CreateProductForm = () => {
             name="category"
             value={newProduct.category}
             onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-            className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md
+             shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2
+              focus:ring-emerald-500"
             required
           >
             <option value="">
@@ -132,14 +136,18 @@ const CreateProductForm = () => {
             name="image"
             accept="image/*"
             onChange={handleImageChange}
-            className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="mt-1 block w-full bg-gray-700 border border-gray-600
+            rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2
+             focus:ring-emerald-500"
           />
           {newProduct.image && <span className='ml-3 text-sm text-gray-400'>Image uploaded</span>}
         </div>
 
         <button
           type="submit"
-          className="flex justify-center items-center mt-4 w-full bg-emerald-500 text-white font-medium py-2 px-4 rounded-md hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+          className="flex justify-center items-center mt-4 w-full bg-emerald-500
+           text-white font-medium py-2 px-4 rounded-md hover:bg-emerald-600 
+           focus:outline-none focus:ring-2 focus:ring-emerald-400"
           disabled={loading}
         >
           {loading ? (

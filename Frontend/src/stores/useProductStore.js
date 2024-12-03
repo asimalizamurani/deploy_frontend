@@ -20,7 +20,62 @@ const useProductStore = create((set) => ({
       toast.error(error.response.data.error);
       set({ loading: false });
     }
-  }
+  },
+
+  fetchAllProducts: async () => {
+    set({ loading: true });
+    try {
+      const response = await axios.get("/products");
+      set({ products: response.data.products, loading: false });
+    } catch (error) {
+      set({ error: "Failed to fetch products", loading: false });
+      toast.error(error.response.data.error || "Failed to fetch products");
+    }
+  },
+
+  fetchProductsByCategory: async (category) => {
+    set({ loading: true });
+    try {
+      const response = await axios.get(`/products/category/${category}`);
+      set({ products: response.data.products, loading: false });
+    } catch (error) {
+      set({ error: "Failed to fetch products", loading: false });
+      toast.error(error.response.data.error || "Failed to fetch products");
+    }
+  },
+
+  deleteProduct: async (producdId) => {
+    set({ loading: true });
+    try {
+      await axios.delete(`/products/${producdId}`);
+      set((prevProducts) => ({
+        products: prevProducts.products.filter((product) => 
+          product._id !== producdId), 
+      loading: false,
+      }));
+    } catch (error) {
+      set({ loading: false });
+      toast.error(error.response.data.error || "Failed to delete product");
+    }
+  },
+
+  toggleFeaturedProduct: async (producdId) => {
+    set({ loading: true });
+    try {
+      const response = await axios.patch(`/products/${producdId}`);
+      // This will update the isFeatured prop of the product
+      set((previousProduct) => ({
+        products: previousProduct.products.map((product) => (
+          product._id === producdId ? { ...product, isFeatured: response.data.isFeatured } 
+          : product
+        )),
+        loading: false,
+      }));
+    } catch (error) {
+      set({loading: false });
+      toast.error(error.response.data.error || "Failed to update product");
+    }
+  },
 }))
 
 export {
