@@ -1,17 +1,24 @@
 import toast from "react-hot-toast";
 import { ShoppingCart } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
+import { useCartStore } from "../stores/useCartStore";
 
 const ProductCard = ({ product }) => {
   const { user } = useUserStore();
   console.log(product.name);
+
+  const { addToCart } = useCartStore();
 
   const handleAddToCart = () => {
     if(!user) {
       toast.error("Please login to add products to your cart", { id: "login" });
       return
     } else {
-      console.log(product.name, "added to the cart");
+      // console.log(product.name, "added to the cart");
+      addToCart(product);
+      console.log("Updated Cart after adding:"); // This might still show the old state
+
+      
     }
   };
 

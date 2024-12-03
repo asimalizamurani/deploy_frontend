@@ -8,10 +8,12 @@ const useCartStore = create((set, get) => ({
   total: 0,
   subtotal: 0,
 
-  getCartItem: async () => {
+  getCartItems: async () => {
     try {
       const res = await axios.get("/cart");
       set({ cart: res.data });
+      get().calculateTotals();
+
     } catch (error) {
       set({ cart: [] });
       toast.error(error.response.data.message || "An error occurred");
@@ -20,22 +22,26 @@ const useCartStore = create((set, get) => ({
 
   addToCart: async (product) => {
     try {
-      await axios.post("/cart", { productId: product._id });
+      await axios.post("/cart", {productId:product._id});
       toast.success("Product added to cart");
+      console.log("Product added to cart successfully bro"); // testing purpose
+      
       set((prevState) => {
-        const existingItem = prevState.cart.find(
-          (item) => item._id === product._id
-        );
+        const existingItem = prevState.cart.find((item) => item._id === product._id);
+
         const newCart = existingItem
           ? prevState.cart.map((item) =>
-              item._id === product._id
+              (item._id === product._id
                 ? { ...item, quantity: item.quantity + 1 }
                 : item
-            )
-          : [...prevState.cart, { ...product, quantity: 1 }];
+            ))
+          : [ ...prevState.cart, { ...product, quantity: 1 }];
+          console.log("Updated Cart:", newCart); // testing purpose
         return { cart: newCart };
       });
+      get().calculateTotals();
     } catch (error) {
+      console.error("Error adding to cart:", error); // testing purpose
       toast.error(error.response.data.message || "An error occurred");
     }
   },
@@ -52,7 +58,7 @@ const useCartStore = create((set, get) => ({
     
     set({ subtotal, total });
   },
-  
+
 }));
 
 export { useCartStore };
