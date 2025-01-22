@@ -5,7 +5,6 @@ import { useCartStore } from "../stores/useCartStore";
 
 const ProductCard = ({ product }) => {
   const { user } = useUserStore();
-  console.log(product.name);
 
   const { addToCart } = useCartStore();
 
@@ -17,7 +16,6 @@ const ProductCard = ({ product }) => {
       // console.log(product.name, "added to the cart");
       addToCart(product);
       console.log("Updated Cart after adding:"); // This might still show the old state
-
       
     }
   };

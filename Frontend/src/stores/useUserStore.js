@@ -60,14 +60,66 @@ const useUserStore = create((set, get) => ({
       const response = await axios.get("/auth/profile");
       set({ user: response.data, checkingAuth: false });
     } catch (error) {
-      set({ checkingAuth: false, user: null})
+      set({ user: null, checkingAuth: false })
     }
   },
+
+  // refreshToken: async () => {
+  //   try {
+  //     const response = await axios.post("/auth/refresh-token");
+  //     set({ user: response.data });
+  //     return response.data;
+  //   } catch (error) {
+  //     set({ user: null });
+  //     throw error;
+  //   }
+  // },
 
 
 }));
 
 // TODO: Implement the axios interceptors for refreshing access token 15m
+
+
+// Axios interceptor for token refresh
+// let refreshPromise = null;
+
+// axios.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const originalRequest = error.config;
+//     if (error.response?.status === 401 && !originalRequest._retry) {
+//       originalRequest._retry = true;
+
+//       try {
+//         // if a refresh is already in progress, wait for it to complete
+//         if (refreshPromise) {
+//           await refreshPromise;
+//           return axios(originalRequest);
+//         }
+
+//         // start a new refresh process
+//         refreshPromise = useUserStore.getState().refreshToken();
+//         await refreshPromise;
+//         refreshPromise = null;
+
+//         return axios(originalRequest);
+//       } catch (refreshError) {
+//         // If refresh fails, redirect to Login or handle as needed
+//         useUserStore.getState().logout();
+//         return Promise.reject(refreshError);
+//       }
+//     }
+//     return Promise.reject(error);
+//   }
+// );
+
+// // Periodic token refresh every 15 minutes
+// setInterval(() => {
+//   useUserStore.getState().refreshToken().catch((error) => {
+//     console.error("Failed to refresh token:", error);
+//   });
+// }, 15 * 60 * 1000); // 15 minutes in milliseconds
 
 
 export {

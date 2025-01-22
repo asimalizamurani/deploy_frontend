@@ -91,28 +91,29 @@ const deleteProduct = async (req, res) => {
 }
 
 const getRecommendedProducts = async (req, res) => {
-    try {
+  try {
       const products = await Product.aggregate([
-        {
-          $sample: {size: 3}
-        },
-        {
-          $product: {
-            _id: 1,
-            name: 1,
-            description: 1,
-            image: 1,
-            price: 1
+          {
+              $sample: { size: 4 } // Randomly selects 3 products
+          },
+          {
+              $project: { // Use $project to select fields
+                  _id: 1,
+                  name: 1,
+                  description: 1,
+                  image: 1,
+                  price: 1
+              }
           }
-        }
-      ])
+      ]);
 
-      res.json(products)
-    } catch (error) {
-      console.log("Error in getRecommendedProducts controller", error.message)
-      res.status(500).json({ message: "Server error", error: error.message })
-    }
-}
+      res.json(products);
+  } catch (error) {
+      console.log("Error in getRecommendedProducts controller", error.message);
+      res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 
 const getProductsByCategory = async (req, res) => {
   const {category} = req.params;
