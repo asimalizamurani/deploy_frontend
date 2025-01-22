@@ -26,10 +26,26 @@ const orderSchema = new mongoose.Schema(
         }
       }
     ],
+
+    address: {
+      name: { type: String, required: true },
+      email: { type: String, required: true },
+      address: { type: String, required: true },
+      province: { type: String, required: true },
+      city: { type: String, required: true },
+      phone: { type: String, required: true },
+    },
+
     totalAmount: {
       type: Number,
       required: true,
       min: 0
+    },
+
+    status: {
+      type: String,
+      enum: ["Pending", "Completed", "Cancelled"],
+      default: "Pending"
     },
     stripeSessionId: {
       type: String,
