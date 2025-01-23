@@ -1,11 +1,11 @@
-import { div, use } from "framer-motion/client";
-import React, { useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, Route, Routes, } from "react-router-dom";
 
 import HomePage from "./pages/HomePage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
+import OrderFormPage from "./pages/OrderFormPage.jsx";
 
 import Navbar from "./components/Navbar.jsx";
 import { Toaster } from "react-hot-toast";
@@ -21,6 +21,8 @@ import { useCartStore } from "./stores/useCartStore.js";
 const App = () => {
   const {user, checkAuth, checkingAuth} = useUserStore();
   const { getCartItems } = useCartStore();
+  // const navigate = useNavigate();
+
   useEffect(() => {
     checkAuth();
 
@@ -70,6 +72,7 @@ const App = () => {
         <Route path="/secret-dashboard" element={ user?.role === "admin" ? <AdminPage /> : <Navigate to='/login' />} />
         <Route path="/category/:category" element={<CategoryPage />} />
         <Route path="/cart" element={user ? <CartPage /> : <Navigate to='/login' />} />
+        <Route path="/order-form" element={user ? <OrderFormPage /> : <Navigate to="/login" /> } />
         <Route path="/purchase-success" element={user ? <PurchaseSuccess /> : <Navigate to='/login' />} />
         <Route path="/purchase-cancel" element={user ? <PurchaseCancelPage /> : <Navigate to='/login' />} />
       </Routes>
