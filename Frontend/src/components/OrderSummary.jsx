@@ -1,37 +1,25 @@
 import { motion } from "framer-motion";
 import { useCartStore } from "../stores/useCartStore";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MoveRight } from "lucide-react";
-import { loadStripe } from "@stripe/stripe-js";
-import axios from "../lib/axios";
+// import { loadStripe } from "@stripe/stripe-js";
+// import axios from "../lib/axios";
 
-const stripePromise = loadStripe(
-  "pk_test_51QJAjaJrHxdQQUaKlgrlrrrrvWwWZeOpimJr96TylSMoCdr6XVyD53SMkTV99plHVWrFAYIuOxOuR9aMY10347qk00bf0m3y08"
-);
+// const stripePromise = loadStripe(
+//   "pk_test_51QJAjaJrHxdQQUaKlgrlrrrrvWwWZeOpimJr96TylSMoCdr6XVyD53SMkTV99plHVWrFAYIuOxOuR9aMY10347qk00bf0m3y08"
+// );
 
 const OrderSummary = () => {
-  const { total, subtotal, coupon, isCouponApplied, cart } = useCartStore();
+  const { total, subtotal, coupon, isCouponApplied } = useCartStore();
+  const navigate = useNavigate();
 
   const savings = subtotal - total;
   const formattedSubtotal = subtotal.toFixed(2);
   const formattedTotal = total.toFixed(2);
   const formattedSavings = savings.toFixed(2);
 
-  const handlePayment = async () => {
-    const stripe = await stripePromise;
-    const res = await axios.post("/payments/create-checkout-session", {
-      products: cart,
-      couponCode: coupon ? coupon.code : null,
-    });
-
-    const session = res.data
-    const result = await stripe.redirectToCheckout({
-      sessionId: session.id,
-    })
-
-    if(result.error) {
-      console.error("Error", result.error)
-    }
+  const handleProceedToCheckout = () => {
+    navigate("/order-form");
   };
 
   return (
@@ -88,9 +76,9 @@ const OrderSummary = () => {
          focus:ring-emerald-300"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={handlePayment}
+          onClick={handleProceedToCheckout}
         >
-          Proceed to Checkout
+          Continue to Checkout
         </motion.button>
 
         <div className="flex items-center justify-center gap-2">

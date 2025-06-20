@@ -50,12 +50,10 @@ const useCartStore = create((set, get) => ({
     set({ cart: [], coupon: null, total: 0, subtotal: 0 });
   },
   
-  
   addToCart: async (product) => {
     try {
-      await axios.post("/cart", { productId: product._id });
+      await axios.post("/cart", { productId: product._id }); // Send productId only
       toast.success("Product added to cart");
-      console.log("Product added to cart successfully bro"); // testing purpose
 
       set((prevState) => {
         const existingItem = prevState.cart.find(
@@ -69,34 +67,41 @@ const useCartStore = create((set, get) => ({
                 : item
             )
           : [...prevState.cart, { ...product, quantity: 1 }];
-        console.log("Updated Cart:", newCart); // testing purpose
         return { cart: newCart };
       });
       get().calculateTotals();
     } catch (error) {
-      console.error("Error adding to cart:", error); // testing purpose
-      toast.error(error.response.data.message || "An error occurred");
-    }
-  },
+      // console.error("Error adding to cart:", error);
+      // toast.error(error.response?.data?.message || "An error occurred");
+      console.error("Error adding to cart:", error);
+      console.error("Full error response:", error.response); // Log full error response
+      toast.error(error.response?.data?.message || "An error occurred");
+  }
+},
 
   removeFromCart: async (productId) => {
-    try {
-      // Make API call to delete item
-      // await axios.delete(`/cart`, { data: { productId } });
-      await axios.delete(`/cart?productId=${productId}`);
-      // Update state safely
-      set((prevState) => ({
-        cart: Array.isArray(prevState.cart)
-          ? prevState.cart.filter((item) => item._id !== productId)
-          : [], // Fallback to an empty array
-      }));
-      get().calculateTotals();
-      toast.success("Product removed from cart");
-    } catch (error) {
-      console.error("Error removing from cart:", error); // Debugging
-      toast.error(error.response?.data?.message || "Failed to remove item");
-    }
-  },
+  try {
+    // Make API call with correct parameter handling
+    await axios.delete(`/cart`, { params: { productId } });
+
+    // Update state only after successful API call
+    set((prevState) => ({
+      cart: prevState.cart.filter((item) => item._id !== productId)
+    }));
+
+    get().calculateTotals();
+    toast.success("Product removed from cart");
+  } catch (error) {
+    console.error("Error removing from cart:", error);
+    // Handle different error scenarios
+    const errorMessage = error.response?.data?.message || 
+                        error.message || 
+                        "Failed to remove item";
+    toast.error(errorMessage);
+    // Optionally refresh cart state from server
+    get().getCartItems();
+  }
+},
 
   updateQuantity: async (productId, quantity) => {
   if(quantity === 0) {

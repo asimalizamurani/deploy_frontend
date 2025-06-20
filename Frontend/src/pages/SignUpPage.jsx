@@ -1,5 +1,5 @@
-import {useState} from 'react'
-import { Link } from 'react-router-dom'
+import {useState, useEffect} from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { UserPlus, Mail, Lock, User, ArrowRight, Loader } from 'lucide-react'
 import Navbar from '../components/Navbar';
 import { useUserStore } from '../stores/useUserStore.js';
@@ -13,7 +13,17 @@ const SignUpPage = () => {
     confirmPassword: "",
   });
 
-  const { signup, loading } = useUserStore();
+  // Use selectors for zustand reactivity
+  const user = useUserStore((state) => state.user);
+  const signup = useUserStore((state) => state.signup);
+  const loading = useUserStore((state) => state.loading);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

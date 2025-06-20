@@ -1,110 +1,79 @@
-import { ArrowRight, CheckCircle, HandHeart } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
-import { useCartStore } from "../stores/useCartStore";
-import axios from "../lib/axios";
-import Confetti from "react-confetti";
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import axios from '../lib/axios';
+import { toast } from 'react-hot-toast';
+import { Loader } from 'lucide-react';
+import { useCartStore } from '../stores/useCartStore';
+
+const MAX_RETRIES = 6; // Try for up to 6 times (about 12 seconds)
+const RETRY_DELAY = 2000; // 2 seconds between tries
 
 const PurchaseSuccess = () => {
-
-  const [isProcessing, setIsProcessing] = useState(true);
-  const {clearCart} = useCartStore();
-  const [error, setError] = useState(null)
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('session_id');
+  const { forceRefreshCart } = useCartStore();
+  const [status, setStatus] = useState('processing'); // 'processing', 'success', 'failed'
+  const [retries, setRetries] = useState(0);
 
   useEffect(() => {
-    const handleCheckoutSuccess = async (sessionId) => {
+    let isMounted = true;
+    const verifyPayment = async (attempt = 1) => {
       try {
-        await axios.post("payments/checkout-success", {
-          sessionId
-        })
-        clearCart()
+        const { data } = await axios.get(`payments/verify/${sessionId}`);
+        if (data.success) {
+          await forceRefreshCart();
+          if (isMounted) {
+            setStatus('success');
+            toast.success('Payment successful! Cart cleared');
+          }
+        } else if (attempt < MAX_RETRIES) {
+          setTimeout(() => verifyPayment(attempt + 1), RETRY_DELAY);
+          setRetries(attempt);
+        } else {
+          if (isMounted) setStatus('failed');
+        }
       } catch (error) {
-        console.log("Error in purchaseSuccess page", error)
-      } finally {
-        setIsProcessing(false)
+        if (attempt < MAX_RETRIES) {
+          setTimeout(() => verifyPayment(attempt + 1), RETRY_DELAY);
+          setRetries(attempt);
+        } else {
+          if (isMounted) setStatus('failed');
+        }
       }
-    }
-
-    const sessionId = new URLSearchParams(window.location.search).get("session_id");
+    };
     if (sessionId) {
-      handleCheckoutSuccess(sessionId)
-    } else {
-      setIsProcessing(false)
-      setError("No session ID found in the URL")
+      verifyPayment();
     }
-  }, [clearCart])
-
-  if(isProcessing) return "Processing";
-
-  if(error) return `Error: ${error}`;
+    return () => { isMounted = false; };
+  }, [sessionId, forceRefreshCart]);
 
   return (
-    <div className="h-screen flex items-center justify-center px-4">
-      <Confetti
-      width={
-        window.innerWidth
-      }
-      height={
-        window.innerHeight
-      }
-      gravity={0.1}
-      style={{zIndex: 99}}
-      numberOfPieces={700}
-      recycle={false}
-      />
-
-      <div
-        className="max-w-md w-full bg-gray-800 rounded-lg shadow-xl overflow-hidden
-      relative z-10"
-      >
-        <div className="p-6 sm:p-8">
-          <div className="flex items-center justify-center">
-            <CheckCircle className="text-emerald-400 w-1/6 h-16 mb-4" />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-center text-emerald-400 mb-2">
-            Purchase successful!
-          </h1>
-
-          <p className="text-center text-gray-300 mb-4">
-            Thank you for your purchase. Your order will be shipped soon.
-          </p>
-
-          {/* TODO: Add the email functionality when a user place an order then 
-          send him an email. */}
-          <p className="text-emerald-400 text-center mb-6 text-sm">
-            You will receive an email confirmation shortly.
-          </p>
-          <div className="bg-gray-700 p-4 rounded-lg mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-300 text-sm">Order Number</p>
-              <p className="text-emerald-400 text-sm font-semibold">#123456</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        {sessionId ? (
+          status === 'processing' ? (
+            <>
+              <h2 className="text-2xl font-bold text-emerald-600 mb-4">
+                <Loader className="animate-spin inline-block mr-2" />
+                Finalizing Order... (Attempt {retries + 1} of {MAX_RETRIES})
+              </h2>
+              <p className="text-gray-600">Clearing your cart and completing purchase</p>
+            </>
+          ) : status === 'success' ? (
+            <>
+              <h2 className="text-2xl font-bold text-emerald-600 mb-4">Payment Successful!</h2>
+              <p className="text-gray-600">Thank you for your purchase. Your order is complete.</p>
+            </>
+          ) : (
+            <div className="text-red-500">
+              Payment verification failed. If you paid, please contact support.
             </div>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-300 text-sm">Estimated Delivery</p>
-              <p className="text-emerald-400 text-sm font-semibold">
-                3-5 business days
-              </p>
-            </div>
+          )
+        ) : (
+          <div className="text-red-500">
+            Invalid session ID - No payment to verify
           </div>
-
-          <div className="space-y-4">
-            <button
-              className="w-full bg-emerald-600 text-white font-bold py-2 px-4 rounded-xl
-            hover:bg-emerald-300 flex items-center justify-center"
-            >
-              <HandHeart className="m-2" size={18} />
-              Thanks for shopping with us!
-            </button>
-            <Link
-            to={"/"}
-              className="w-full bg-gray-700 text-white font-bold py-2 px-4 rounded-xl
-            hover:bg-gray-600 transition duration-300 flex items-center justify-center"
-            >
-              Continue Shopping
-              <ArrowRight className="ml-2" size={18} />
-            </Link>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
